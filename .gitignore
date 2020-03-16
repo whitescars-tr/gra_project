@@ -3,3 +3,18 @@
 ################################################################################
 
 /.vs/gra_project/gra_project/y_train_OHC.csv
+/.vs/gra_project/gra_project/y_train.csv
+/.vs/gra_project/gra_project/y_test_OHC.csv
+/.vs/gra_project/gra_project/y_test.csv
+/.vs/gra_project/gra_project/y_input_02.csv
+/.vs/gra_project/gra_project/y_input_01.csv
+/.vs/gra_project/gra_project/y_input.csv
+/.vs/gra_project/gra_project/x_train_z_score.csv
+/.vs/gra_project/gra_project/x_train_nor.csv
+/.vs/gra_project/gra_project/x_train.csv
+/.vs/gra_project/gra_project/x_test_z_score.csv
+/.vs/gra_project/gra_project/x_test_nor.csv
+/.vs/gra_project/gra_project/x_test.csv
+/.vs/gra_project/gra_project/x_input.csv
+/.vs/gra_project/gra_project/peremeter_z_score.csv
+/.vs/gra_project/gra_project/peremeter_normalization.csv
