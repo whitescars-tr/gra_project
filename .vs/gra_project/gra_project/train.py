@@ -6,7 +6,7 @@ from keras.layers import LSTM,Dense, Activation,Dropout
 from keras import optimizers
 from sklearn.cross_validation import train_test_split
 import matplotlib.pyplot as plt
-
+from sklearn.linear_model import Lasso,LassoLarsCV
 def read_data():
     x_train=pd.read_csv('x_train_z_score.csv',header=None)#训练集数据
     x_test=pd.read_csv('x_test_z_score.csv',header=None)#测试集数据
@@ -86,21 +86,21 @@ def train_01(n_step,n_input,n_classes,x_train,x_test,y_train,y_test):
 #每次处理的数量
     batch_size = 25
 #循环次数
-    epochs = 20
+    epochs = 25
 #神经元的数量
-    n_lstm_out = 64
+    n_lstm_out = 128
+#正则化
+    model_zzh=LassoLarsCV()
+    model_zzh.fit(x_train,y_train)
 
 #分割验证集测试集
     x_train,x_val, y_train, y_val =train_test_split(x_train,y_train)
-    print(x_train.shape)
-    print(x_val.shape)
-    print(y_train.shape)
-    print(y_val.shape)
-    '''
+
 #LSTM层
     model.add(LSTM(
         units = n_lstm_out,
         input_shape = (n_step, n_input)))
+    model.add(Dropout(0.2))
     #全连接层          
     model.add(Dense(units = n_classes))
 #激活层
@@ -111,7 +111,7 @@ def train_01(n_step,n_input,n_classes,x_train,x_test,y_train,y_test):
 
 # 编译
     model.compile(
-        optimizer = optimizers.Adam(lr = learning_rate),
+        optimizer = optimizers.Adadelta(),
         loss = 'categorical_crossentropy',
         metrics = ['accuracy'])
 
@@ -142,7 +142,7 @@ def train_01(n_step,n_input,n_classes,x_train,x_test,y_train,y_test):
                        verbose = 1)
     print('loss:',score[0])
     print('acc:',score[1])
-    '''
+
 def train_02(n_step,n_input,n_classes,x_train,x_test,y_train,y_test):
     model = Sequential()
 
@@ -154,7 +154,7 @@ def train_02(n_step,n_input,n_classes,x_train,x_test,y_train,y_test):
 #每次处理的数量
     batch_size = 25
 #循环次数
-    epochs = 30
+    epochs = 60
 #神经元的数量
     n_lstm_out = 32
 
@@ -164,14 +164,12 @@ def train_02(n_step,n_input,n_classes,x_train,x_test,y_train,y_test):
 #LSTM层
     model.add(LSTM(units= n_lstm_out,
                    input_shape=(n_step, n_input),
-                   activation='relu',
                    return_sequences=True))
-    for i in range(lstm_layers - 1):
-        model.add(LSTM(output_dim=32 * (i+1),
-                       activation='relu',
+    for i in range(8):
+        model.add(LSTM(units= n_lstm_out*(i+1),
                        return_sequences=True))
+        model.add(Dropout(0.2))
     model.add(LSTM(units=n_lstm_out*2,
-                   activation='relu',
                    return_sequences=False))
     model.add(Dense(units = n_classes))
 #激活层
@@ -223,7 +221,7 @@ def main():
     #normalization_test(x_test,'x_test_nor.csv')
     x_train=x_train.reshape(-1,5,25)
     x_test=x_test.reshape(-1,5,25)
-    train_02(n_step,n_input,n_classes,x_train,x_test,y_train,y_test)
+    train_01(n_step,n_input,n_classes,x_train,x_test,y_train,y_test)
 
 
 
