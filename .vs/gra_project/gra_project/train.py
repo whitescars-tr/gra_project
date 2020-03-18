@@ -1,12 +1,16 @@
 import pandas as pd
 import numpy as np
 import os
+import tensorflow as tf
 from keras import Sequential
 from keras.layers import LSTM,Dense, Activation,Dropout
 from keras import optimizers
 from sklearn.cross_validation import train_test_split
 import matplotlib.pyplot as plt
-from sklearn.linear_model import Lasso,LassoLarsCV
+
+from sklearn.linear_model import Ridge
+from sklearn.metrics import r2_score
+
 def read_data():
     x_train=pd.read_csv('x_train_z_score.csv',header=None)#训练集数据
     x_test=pd.read_csv('x_test_z_score.csv',header=None)#测试集数据
@@ -88,13 +92,13 @@ def train_01(n_step,n_input,n_classes,x_train,x_test,y_train,y_test):
 #循环次数
     epochs = 25
 #神经元的数量
-    n_lstm_out = 128
+    n_lstm_out = 256
 #正则化
-    model_zzh=LassoLarsCV()
-    model_zzh.fit(x_train,y_train)
-
+   # ridge=Ridge(alpha=10)
+    #ridge.fit(x_train,y_train)
+    #ridge.
 #分割验证集测试集
-    x_train,x_val, y_train, y_val =train_test_split(x_train,y_train)
+    x_train,x_val, y_train, y_val =train_test_split(x_train,y_train,test_size=0.1)
 
 #LSTM层
     model.add(LSTM(
@@ -102,6 +106,7 @@ def train_01(n_step,n_input,n_classes,x_train,x_test,y_train,y_test):
         input_shape = (n_step, n_input)))
     model.add(Dropout(0.2))
     #全连接层          
+    model.add(Dense(units = n_classes))
     model.add(Dense(units = n_classes))
 #激活层
     model.add(Activation('softmax'))
@@ -111,7 +116,7 @@ def train_01(n_step,n_input,n_classes,x_train,x_test,y_train,y_test):
 
 # 编译
     model.compile(
-        optimizer = optimizers.Adadelta(),
+        optimizer = optimizers.Adam(),
         loss = 'categorical_crossentropy',
         metrics = ['accuracy'])
 
@@ -154,9 +159,9 @@ def train_02(n_step,n_input,n_classes,x_train,x_test,y_train,y_test):
 #每次处理的数量
     batch_size = 25
 #循环次数
-    epochs = 60
+    epochs = 30
 #神经元的数量
-    n_lstm_out = 32
+    n_lstm_out = 256
 
 #分割验证集测试集
     x_train,x_val, y_train, y_val =train_test_split(x_train,y_train,test_size=0.25)
@@ -165,13 +170,11 @@ def train_02(n_step,n_input,n_classes,x_train,x_test,y_train,y_test):
     model.add(LSTM(units= n_lstm_out,
                    input_shape=(n_step, n_input),
                    return_sequences=True))
-    for i in range(8):
-        model.add(LSTM(units= n_lstm_out*(i+1),
-                       return_sequences=True))
-        model.add(Dropout(0.2))
     model.add(LSTM(units=n_lstm_out*2,
                    return_sequences=False))
     model.add(Dense(units = n_classes))
+    model.add(Dense(units=n_classes))
+    model.add(Dropout(0.2))
 #激活层
     model.add(Activation('softmax'))
 #查看各层的基本信息
